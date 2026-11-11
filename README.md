@@ -76,7 +76,9 @@ platforms:
 ```
 
 Replace `coordinator` with an existing profile, or omit both profile fields for
-the default profile. Native dynamic subscriptions are also supported. Preserve
+the default profile. Native dynamic subscriptions are also supported; on multiplexed gateways, register
+the same route in the ingress home and target profile home for durable admission
+(see the verification notes). Preserve
 existing routes and normal restrictive tool policies. Terminal or write-capable
 tools are a separate operator decision. `deliver: log` avoids chat-alert noise.
 
