@@ -1,0 +1,10 @@
+name: hermes-buildkite
+label: Buildkite webhooks
+kind: platform
+version: 0.1.0
+description: Buildkite signature translation for native Hermes webhooks.
+author: ParkesAI contributors
+license: MIT
+homepage: https://github.com/ParkesAI/hermes-buildkite
+python_dependencies:
+  - aiohttp>=3.12,<4
