@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.13.7'
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked --dev
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run python -W error::ResourceWarning -m unittest discover -s tests -v
+      - run: uv build
+      - run: uv run python scripts/check_distribution.py
+
+  hermes-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HERMES_SOURCE: ${{ github.workspace }}/.hermes-sdk
+      HERMES_HOME: ${{ github.workspace }}/.hermes-test-home
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: NousResearch/hermes-agent
+          ref: 2bd378ed1b8d6bf2192cb26e0a55ff3091e6bd19 # v0.23.0
+          path: .hermes-sdk
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.13.7'
+          python-version: '3.14'
+      - run: uv run --project .hermes-sdk --with . python -W error::ResourceWarning -m unittest discover -s tests -p test_adapter_contract.py -v
